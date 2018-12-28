@@ -30,7 +30,14 @@ This creates several files: `Floodlight.launch`, `Floodlight_junit.launch`, `.cl
 
 - `Import existing projects`
 - `Select root directory`选择floodlight文件夹
-- 在`Project Explorer`中右键`floodlight`->`Run as`->`Run Configurations`, `Name`输入`FloodlightLaunch`，`Project`输入`floodlight`,`Main class`输入`net.floodlightcontroller.core.Main`, `Apply`并`Run`，floodlight就运行起来了，打开浏览器可以正常访问管理界面
+- 在`Project Explorer`中右键`floodlight`->`Run as`->`Run Configurations`, `Name`输入`FloodlightLaunch`，`Project`输入`floodlight`,`Main class`输入`net.floodlightcontroller.core.Main`, `Apply`并`Run`，floodlight就运行起来了，打开浏览器可以正常访问管理界面.
+
+### Developing Floodlight in IntelliJ IDEA
+- 下载并更新源码后**不要**用`ant`进行build, Idea直接从floodlight文件夹导入源码，不要使用外部框架（Eclipse,Maven,Gradle）.
+- 右键单击`floodlight/src/main/resources`->`Mark Directory as`->`Resources root`.
+- 进行如下配置后, `Run->Run 'Floodlight'`, floodlight就运行起来了，打开浏览器可以正常访问管理界面.
+
+![](images/idea-setting.png)
 
 ### 配置信息
 缺省配置信息在`floodlight/src/main/resources/floodlightdefault.properties`，如`http`端口`8080`, `openflow`端口`6653`
