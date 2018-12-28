@@ -21,7 +21,7 @@ net.floodlightcontroller.mactracker.MacTracker
 启动虚拟机, 使用如下命令登录mininet:
 
 ```
-$ sudo mn --controller=remote,ip=10.168.1.144,port=6553
+$ sudo mn --controller=remote,ip=10.168.1.144,port=6653
 ```
 
 即可在控制台看到输出：
