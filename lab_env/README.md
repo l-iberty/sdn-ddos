@@ -42,6 +42,8 @@ This creates several files: `Floodlight.launch`, `Floodlight_junit.launch`, `.cl
 ### 配置信息
 缺省配置信息在`floodlight/src/main/resources/floodlightdefault.properties`，如`http`端口`8080`, `openflow`端口`6653`
 
+***
+
 ## [二]Mininet
 使用VirtualBox创建一个虚拟机，网络配置选择桥接，如下：
 
@@ -67,6 +69,8 @@ $ sudo mn --test pingall # 登录mininet,测试ping连通性
 
 ![](images/mininet-test.png)
 
+***
+
 ## [三]mininet连接floodlight控制器
 在宿主机中打开`floodlight`，确保能登录web管理界面. 在虚拟机中启动mininet:
 
@@ -84,3 +88,32 @@ mininet与floodlight成功连接后，在floodlight的管理界面可以看到�
 此时在宿主机打开Wireshark，可以抓到虚拟机和宿主机的OpenFlow包:
 
 ![](images/wireshark.png)
+
+***
+
+## [四] sFlow-RT
+### 在主机中部署sFlow Conllector
+```
+$ wget http://www.inmon.com/products/sFlow-RT/sflow-rt.tar.gz
+$ tar -xvzf sflow-rt.tar.gz
+$ cd sflow-rt
+$ ./start.sh
+```
+启动sFlow后在浏览器输入`http://localhost:8008/html/index.html`即可登录管理界面.
+
+### 在主机中启动Floodlight控制器，虚拟机登录mininet并连接控制器，部署sFlow Agent:
+![](images/ovs-vsctl.png)
+
+### 输入`ip link`命令查看交换机端口名称和端口编号的映射关系
+例如, `s1`对应的编号是`9`:
+
+![](images/iplink.png)
+
+### 登录sFlow-RT页面，查看`Agents`选项卡，虚拟机`192.168.1.106`(mininet)已被列为监控对象:
+![](images/sflow-agents.png)
+
+### 监测DDos攻击 -- 使用`Ping Flood`进行模拟.
+
+打开`Agents`选项卡, 单击进入虚拟机`192.168.1.106`，进入该虚拟机被监控的端口列表，选择`7.ifinpkts`或`7.ifoutpkts`, 在mininet中`h1 ping -f h2`，即可看到流量的激增; `Ctrl+C`停止后，流量又降为零:
+
+![](images/sflow-ifinpkts.png)
