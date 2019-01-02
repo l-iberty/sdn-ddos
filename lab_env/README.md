@@ -114,6 +114,29 @@ $ ./start.sh
 
 ### 监测DDos攻击 -- 使用`Ping Flood`进行模拟.
 
-打开`Agents`选项卡, 单击进入虚拟机`192.168.1.106`，进入该虚拟机被监控的端口列表，选择`7.ifinpkts`或`7.ifoutpkts`, 在mininet中`h1 ping -f h2`，即可看到流量的激增; `Ctrl+C`停止后，流量又降为零:
+打开`Agents`选项卡, 单击进入虚拟机`192.168.1.106`，进入该虚拟机被监控的端口列表，选择`ifinpkts`或`ifoutpkts`, 在mininet中`h1 ping -f h2`，即可看到流量的激增; `Ctrl+C`停止后，流量又降为零:
 
 ![](images/sflow-ifinpkts.png)
+
+## [五]添加防火墙规则防御DDoS攻击(以ICMP Flood为例)
+进入Floodlight管理页面的`Firewall`选项卡，激活防火墙，保持其状态为`Active`. 在`drop-icmp.json`中输入以下内容:
+```
+{
+	"switch":"00:00:00:00:00:00:00:01",
+	"dl-type":"0x800",
+	"nw-proto":"1",
+	"priority":"100",
+	"action":"DENY"
+}
+```
+`"dl-type":"0x800"`表示以太网上层协议为`IPv4(0x0800)`, `"nw-proto":"1"`IPv4上层协议为`ICMP(1)`.
+
+在mininet中执行`h1 ping h2 -f`, 在sFlow的流量监测页面可以看到一段持续的高峰, 此时借助控制器的北向接口(REST API)，利用`curl`命令将拒绝ICMP的防火墙规则下发到交换机:
+
+![](images/curl-fwrls.png)
+
+然后流量骤降:
+
+![](images/sflow-ifinpkts2.png)
+
+说明防火墙规则起作用了.
