@@ -1,0 +1,7 @@
+{
+	"switch":"00:00:00:00:00:00:00:01",
+	"dl-type":"0x800",
+	"nw-proto":"1",
+	"priority":"100",
+	"action":"DENY"
+}
