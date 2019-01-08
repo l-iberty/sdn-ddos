@@ -119,24 +119,21 @@ $ ./start.sh
 ![](images/sflow-ifinpkts.png)
 
 ## [五]添加防火墙规则防御DDoS攻击(以ICMP Flood为例)
-进入Floodlight管理页面的`Firewall`选项卡，激活防火墙，保持其状态为`Active`. 在`drop-icmp.json`中输入以下内容:
+进入Floodlight管理页面的`Firewall`选项卡，激活防火墙，保持其状态为`Active`. 启动防火墙后由于防火墙规则为空，所以任意两台主机之间都无法通信，因此需要添加主机之间的通信规则. 例如，允许`h1`和`h2`之间ping通:
 ```
-{
-	"switch":"00:00:00:00:00:00:00:01",
-	"dl-type":"0x800",
-	"nw-proto":"1",
-	"priority":"100",
-	"action":"DENY"
-}
+$ curl -X POST -d  '{"src-ip":"10.0.0.1/32","dst-ip":"10.0.0.2/32","dl-type":"ARP"}' http://localhost:8080/wm/firewall/rules/json
+
+$ curl -X POST -d  '{"src-ip":"10.0.0.2/32","dst-ip":"10.0.0.1/32","dl-type":"ARP"}' http://localhost:8080/wm/firewall/rules/json
+
+$ curl -X POST -d  '{"src-ip":"10.0.0.1/32","dst-ip":"10.0.0.2/32","nw-proto":"ICMP"}' http://localhost:8080/wm/firewall/rules/json
+
+$ curl -X POST -d  '{"src-ip":"10.0.0.2/32","dst-ip":"10.0.0.1/32","nw-proto":"ICMP"}' http://localhost:8080/wm/firewall/rules/json
 ```
-`"dl-type":"0x800"`表示以太网上层协议为`IPv4(0x0800)`, `"nw-proto":"1"`IPv4上层协议为`ICMP(1)`.
-
-在mininet中执行`h1 ping h2 -f`, 在sFlow的流量监测页面可以看到一段持续的高峰, 此时借助控制器的北向接口(REST API)，利用`curl`命令将拒绝ICMP的防火墙规则下发到交换机:
-
-![](images/curl-fwrls.png)
-
+在mininet中执行`h1 ping h2 -f`, 在sFlow的流量监测页面可以看到一段持续的高峰, 此时下发以下防火墙规则:
+```
+$ curl -X POST -d '{"src-ip":"10.0.0.1/32","dst-ip":"10.0.0.2/32","nw-proto":"ICMP","action":"DENY"}' http://localhost:8080/wm/firewall/rules/json
+```
 然后流量骤降:
 
 ![](images/sflow-ifinpkts2.png)
 
-说明防火墙规则起作用了.

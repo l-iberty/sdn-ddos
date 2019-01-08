@@ -7,3 +7,4 @@
 net.floodlightcontroller.mypacketinprocessor.MyPacketInProcessor
 ```
 注册模块该模块的步骤参考`MacTracker`.
+**注意:**`MacTracker`和`MyPacketInProcessor`存在冲突，需在配置文件中删除`MacTracker`的配置信息.
