@@ -1,5 +1,5 @@
-# lab-1
-初步测试
+# lab-1 初步测试
+[系统设计概要说明](../lab_doc/README.md)
 
 ## 实验环境准备
 ### 1.启动Floodlight
