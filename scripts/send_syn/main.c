@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 
     for (;;)
     {
-        usleep(1000 * 10); // 10ms
+        usleep(1000);
         make_syn_packet(packet, htonl(daddr), dport);
 
         if (sendto(sockfd, packet, sizeof(packet), 0, (struct sockaddr *) &addr, sizeof(addr)) < 0)
