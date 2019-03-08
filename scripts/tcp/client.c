@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
         //printf("\nSent from client>>: %s", send_buf);
 
         send(sock, send_buf , strlen(send_buf), 0);
-	usleep(1);
+	usleep(1000);
 
         if((bytes_received = recv(sock, recv_buf, BUF_SIZE, 0)) > 1)
         {
