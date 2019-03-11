@@ -92,8 +92,8 @@ int main(int argc, char **argv)
         return 1;
     }
     saddr=inet_addr(argv[1]);
-    daddr = inet_addr(argv[2]);
-    sport = atoi(argv[3]);
+    daddr = inet_addr(argv[3]);
+    sport = atoi(argv[2]);
     dport=atoi(argv[4]);
 
     sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
