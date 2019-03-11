@@ -23,4 +23,4 @@
 
 可以看到，攻击被阻断后流量又恢复正常.
 
-在同样的TCP流量背景下，针对`Ping Flood`的防御则会出现[lab-1](../1/README.md)所述的问题，即正常的TCP流量会被阻断，需要重新连接; 但是`TCP-SYN Flood`&`Ping Flood`混合攻击不会，攻击被阻断后流量将恢复到攻击前的正常水平.
+在同样的TCP流量背景下，针对`Ping Flood`的防御则会出现[lab-1](../1/README.md)所述的问题，即正常的TCP流量会被阻断，需要重新连接, 对于`TCP-SYN Flood`&`Ping Flood`混合攻击亦然.

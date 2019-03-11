@@ -65,10 +65,21 @@ void DDoSDetector::check_flow_window()
             m_abnormal_win_cnt = 0; /* reset counter. */
             handle_attack();
         }
+
+        /* current flow window is abnormal, clear it for next coming packets. */
+        printf("[DDoSDetector] current flow window is abnormal, clear it for next coming packets.\n");
+        m_flow_window.clear();
     }
     else
     {
-        if (m_sliding_times >= SLIDING_TIMES_THRESHOLD)
+        /* current window is normal, slide it forward. */
+        printf("[DDoSDetector] current flow window is normal, slide it forward.\n");
+        for (int i = 0; i < SLIDING_LEN; i++)
+        {
+            if (!m_flow_window.empty()) m_flow_window.pop();
+        }
+
+        if (++m_sliding_times >= SLIDING_TIMES_THRESHOLD)
         {
             /**
              * flow window has slid forward `m_sliding_times' times, but no
@@ -83,14 +94,6 @@ void DDoSDetector::check_flow_window()
             m_abnormal_packets.clear();
         }
     }
-
-    /* slide window forward. */
-    printf("[DDoSDetector] slide flow window forward.\n");
-    for (int i = 0; i < SLIDING_LEN; i++)
-    {
-        if (!m_flow_window.empty()) m_flow_window.pop();
-    }
-    m_sliding_times++;
 }
 
 void DDoSDetector::handle_attack()
