@@ -13,6 +13,7 @@
 #define ICMP_REQUEST_PACKET     1
 #define TCP_SYN_PACKET          2
 #define MAX_PKT_WINDOW          50
+#define ABNORMAL_PKT_THRESHOLD  (MAX_PKT_WINDOW / 3)
 #define ABNORMAL_WIN_THRESHOLD  5
 #define SLIDING_TIMES_THRESHOLD 5
 #define SLIDING_LEN             (MAX_PKT_WINDOW / SLIDING_TIMES_THRESHOLD)
@@ -53,7 +54,7 @@ private:
     void handle_attack();
 private:
     RandomQueue<PacketInfo> m_flow_window; // sliding window
-    std::set<PacketInfo> m_abnormal_packets;
+    std::map<PacketInfo, int> m_abnormal_packets; // key--packet, value--num of packets
     int m_abnormal_win_cnt;
     int m_sliding_times;
     CurlHelper m_CurlHelper;

@@ -37,7 +37,7 @@ void parse_packet(uint8_t *packet, int len)
 
         switch (iph->proto)
         {
-            case IPV4PROTO_ICMP:
+            case IPPROTO_ICMP:
             {
                 struct icmp_header *icmph = ICMP_HEADER(packet);
                 if (icmph->type == ICMP_REQUEST)
@@ -53,7 +53,7 @@ void parse_packet(uint8_t *packet, int len)
                 }
                 break;
             }
-            case IPV4PROTO_TCP:
+            case IPPROTO_TCP:
             {
                 struct tcp_header *th = TCP_HEADER(packet);
                 pkt.type = (th->flag == FLAG_SYN) ? TCP_SYN_PACKET : 0;

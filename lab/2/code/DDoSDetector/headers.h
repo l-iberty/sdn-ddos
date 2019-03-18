@@ -31,10 +31,6 @@ struct arp_header
     uint32_t arp_tpaddr;            // 目标协议地址 (IPv4)
 }__attribute__((packed));
 
-#define IPV4PROTO_ICMP  1
-#define IPV4PROTO_TCP   6
-#define IPV4PROTO_UDP   17
-
 struct ip_header
 {
     uint8_t ver_ihl;                // 版本 (4 bits) + 首部长度 (4 bits)

@@ -31,7 +31,6 @@ void DDoSDetector::recv_packet(PacketInfo pkt_info)
 void DDoSDetector::check_flow_window()
 {
     int abnormal_pkt_cnt = 0;
-    std::map<PacketInfo, int> pkt_stat;
 
     for (int i = 0; i < m_flow_window.size(); i++)
     {
@@ -40,21 +39,20 @@ void DDoSDetector::check_flow_window()
         {
             case ICMP_REQUEST_PACKET:
             case TCP_SYN_PACKET:
-                if (pkt_stat.find(pkt) == pkt_stat.end())
+                abnormal_pkt_cnt++;
+                if (m_abnormal_packets.find(pkt) == m_abnormal_packets.end())
                 {
-                    pkt_stat[pkt] = 1;
+                    m_abnormal_packets[pkt] = 1;
                 }
                 else
                 {
-                    pkt_stat[pkt]++;
+                    m_abnormal_packets[pkt]++;
                 }
-                abnormal_pkt_cnt++;
-                m_abnormal_packets.insert(pkt);
                 break;
         }
     }
 
-    if (abnormal_pkt_cnt >= MAX_PKT_WINDOW / 3)
+    if (abnormal_pkt_cnt >= ABNORMAL_PKT_THRESHOLD)
     {
         /**
          * if the number of abnormal windows exceeds the threshold level,
@@ -104,8 +102,13 @@ void DDoSDetector::handle_attack()
     str_dst = new char[32];
     param = new char[256];
 
-    for (PacketInfo pkt : m_abnormal_packets)
+    std::map<PacketInfo, int>::iterator it = m_abnormal_packets.begin();
+    for (; it != m_abnormal_packets.end(); it++)
     {
+        if (it->second < ABNORMAL_PKT_THRESHOLD) continue;
+        /* else this packet is abnormal. */
+
+        PacketInfo pkt = it->first;
         dst.s_addr = pkt.dst_ip;
         tp_dst = htons(pkt.tcp_dport);
         strcpy(str_dst, inet_ntoa(dst));
