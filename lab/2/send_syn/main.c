@@ -45,7 +45,6 @@ void make_syn_packet(char *packet, uint32_t daddr, uint16_t dport)
     struct tcp_header th;
     struct psd_header ph;
     uint8_t buff[sizeof(ph) + sizeof(th)];
-    srand(time(NULL));
 
     ih.ver_ihl = 0x45;
     ih.tos = 0;
