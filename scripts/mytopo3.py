@@ -7,10 +7,10 @@ class MyTopo( Topo ):
 	def __init__( self ):
 		"Create custom topo."
 		"""
-		[h3]----[s1]----[h4]
-			/  \
-		       /    \
-		     [h1]   [h2]
+                   [h3]----[s1]----[h4]
+                           /  \
+                          /    \
+                        [h1]   [h2]
 		"""
 
 		Topo.__init__(self)
